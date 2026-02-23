@@ -39,7 +39,7 @@ java {
 }
 
 javafx {
-    version = "19"
+    version = "20"
     modules = [ 'javafx.controls', 'javafx.fxml' ]
 }
 
@@ -59,6 +59,6 @@ tasks.named('test') {
 
 javadoc {
     options {
-        links 'https://docs.oracle.com/en/java/javase/18/docs/api/'
+        links 'https://docs.oracle.com/en/java/javase/20/docs/api/'
     }
 }
