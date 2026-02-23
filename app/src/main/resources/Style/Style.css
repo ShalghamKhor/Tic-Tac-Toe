@@ -1,0 +1,44 @@
+
+.root{
+    -fx-background-color: #33363b;
+}
+
+.button{
+    -fx-background-color: #4FC3F7;
+    -fx-text-fill: white;
+    -fx-transition: background-color 0.3s;
+
+}
+
+.button:hover{
+    -fx-background-color: #3DAFDF;
+}
+
+.game-layout{
+    -fx-padding: 24;
+}
+
+.status-label{
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.board{
+    -fx-background-color: #5E5F68;
+    -fx-padding: 14;
+    -fx-background-radius: 12;
+}
+
+.cell-button{
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-background-color: #4b4d55;
+    -fx-border-color: #7d818d;
+    -fx-border-width: 2px;
+    -fx-text-fill: white;
+}
+
+.cell-button:hover{
+    -fx-background-color: #656975;
+}

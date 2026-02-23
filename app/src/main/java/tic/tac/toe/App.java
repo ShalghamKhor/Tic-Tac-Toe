@@ -1,21 +1,16 @@
 package tic.tac.toe;
 
 import javafx.application.Application;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import tic.tac.toe.GamingView.View;
-public class App extends Application{
+import tic.tac.toe.GamingView.ViewManager;
+
+public class App extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        View.init(primaryStage);
+        ViewManager.init(primaryStage);
         primaryStage.setTitle("Tic-Tac-Toe");
-        primaryStage.setScene(View.getInitialScene());
+        primaryStage.setScene(ViewManager.getInitialScene());
         primaryStage.show();
     }
 
