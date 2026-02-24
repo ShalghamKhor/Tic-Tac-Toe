@@ -48,3 +48,15 @@
     -fx-font-size: 12px;
     -fx-padding: 0 14 10 0;
 }
+
+.scoreboard{
+    -fx-background-color: #444851;
+    -fx-padding: 10 16 10 16;
+    -fx-background-radius: 10;
+}
+
+.score-label{
+    -fx-text-fill: #e6edf5;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
