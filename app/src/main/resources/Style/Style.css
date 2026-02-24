@@ -42,3 +42,9 @@
 .cell-button:hover{
     -fx-background-color: #656975;
 }
+
+.version-label{
+    -fx-text-fill: #a8b6c7;
+    -fx-font-size: 12px;
+    -fx-padding: 0 14 10 0;
+}

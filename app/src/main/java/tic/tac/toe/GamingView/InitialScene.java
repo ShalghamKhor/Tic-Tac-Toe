@@ -3,7 +3,13 @@ package tic.tac.toe.GamingView;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import tic.tac.toe.AppInfo;
 
 public class InitialScene {
 
@@ -19,11 +25,21 @@ public class InitialScene {
             () -> ViewManager.switchToScene(new SecondaryScene(false).getScene())
         );
 
-        VBox vbox = new VBox(20, button1, button2);
+        VBox centerBox = new VBox(20, button1, button2);
+        centerBox.setAlignment(Pos.CENTER);
 
-        vbox.setAlignment(Pos.CENTER);
+        Label versionLabel = new Label("Version " + AppInfo.getVersion());
+        versionLabel.getStyleClass().add("version-label");
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox footer = new HBox(spacer, versionLabel);
+        footer.setAlignment(Pos.CENTER_RIGHT);
 
-        scene = new Scene(vbox, 500, 300);
+        BorderPane root = new BorderPane();
+        root.setCenter(centerBox);
+        root.setBottom(footer);
+
+        scene = new Scene(root, 500, 300);
         scene.getStylesheets().add(getClass().getResource("/Style/Style.css").toExternalForm());
     }
 

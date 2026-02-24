@@ -11,6 +11,8 @@ plugins {
     id 'org.beryx.jlink' version '2.26.0'
 }
 
+version = '1.1.0'
+
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
@@ -46,14 +48,23 @@ jlink {
     jpackage {
         imageName = 'TicTacToe'
         installerName = 'TicTacToe'
-        appVersion = '1.0.0'
+        appVersion = project.version.toString()
         if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
             installerType = 'msi'
+            icon = 'src/main/resources/images/icon-t.png'
         } else if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
             installerType = 'dmg'
+            icon = 'src/main/resources/images/icon-t.icns'
         } else if (org.gradle.internal.os.OperatingSystem.current().isLinux()) {
             installerType = 'deb'
+            icon = 'src/main/resources/images/icon-t.png'
         }
+    }
+}
+
+tasks.named('processResources') {
+    filesMatching('version.properties') {
+        expand(appVersion: project.version.toString())
     }
 }
 
