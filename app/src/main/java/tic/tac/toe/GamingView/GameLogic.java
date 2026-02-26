@@ -5,6 +5,7 @@ public class GameLogic {
     private char currentPlayer = 'X';
     private Character winner;
     private boolean gameOver;
+    private int[][] winningLine;
 
     public GameLogic() {
         reset();
@@ -19,6 +20,7 @@ public class GameLogic {
         currentPlayer = 'X';
         winner = null;
         gameOver = false;
+        winningLine = null;
     }
 
     public boolean makeMove(int row, int col) {
@@ -83,13 +85,17 @@ public class GameLogic {
     }
 
     private void updateGameState() {
-        if (hasWinner('X')) {
+        int[][] xWinningLine = findWinningLine('X');
+        if (xWinningLine != null) {
             winner = 'X';
+            winningLine = xWinningLine;
             gameOver = true;
             return;
         }
-        if (hasWinner('O')) {
+        int[][] oWinningLine = findWinningLine('O');
+        if (oWinningLine != null) {
             winner = 'O';
+            winningLine = oWinningLine;
             gameOver = true;
             return;
         }
@@ -110,18 +116,27 @@ public class GameLogic {
     }
 
     private boolean hasWinner(char player) {
+        return findWinningLine(player) != null;
+    }
+
+    private int[][] findWinningLine(char player) {
         for (int row = 0; row < 3; row++) {
             if (board[row][0] == player && board[row][1] == player && board[row][2] == player) {
-                return true;
+                return new int[][]{{row, 0}, {row, 1}, {row, 2}};
             }
         }
         for (int col = 0; col < 3; col++) {
             if (board[0][col] == player && board[1][col] == player && board[2][col] == player) {
-                return true;
+                return new int[][]{{0, col}, {1, col}, {2, col}};
             }
         }
-        return (board[0][0] == player && board[1][1] == player && board[2][2] == player)
-            || (board[0][2] == player && board[1][1] == player && board[2][0] == player);
+        if (board[0][0] == player && board[1][1] == player && board[2][2] == player) {
+            return new int[][]{{0, 0}, {1, 1}, {2, 2}};
+        }
+        if (board[0][2] == player && board[1][1] == player && board[2][0] == player) {
+            return new int[][]{{0, 2}, {1, 1}, {2, 0}};
+        }
+        return null;
     }
 
     public char getCell(int row, int col) {
@@ -142,5 +157,9 @@ public class GameLogic {
 
     public boolean isDraw() {
         return gameOver && winner == null;
+    }
+
+    public int[][] getWinningLine() {
+        return winningLine;
     }
 }

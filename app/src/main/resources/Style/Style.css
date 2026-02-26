@@ -60,3 +60,54 @@
     -fx-font-size: 16px;
     -fx-font-weight: bold;
 }
+
+.settings-panel{
+    -fx-background-color: #444851;
+    -fx-padding: 10 14 10 14;
+    -fx-background-radius: 10;
+}
+
+.settings-label{
+    -fx-text-fill: #d8e0ea;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.settings-combo{
+    -fx-background-color: #5a5f6b;
+    -fx-text-fill: white;
+}
+
+.settings-combo:hover{
+    -fx-background-color: #69707e;
+}
+
+.settings-combo .list-cell{
+    -fx-text-fill: white;
+    -fx-background-color: transparent;
+}
+
+.combo-box-popup .list-view{
+    -fx-background-color: #444851;
+    -fx-border-color: #5f6673;
+}
+
+.combo-box-popup .list-cell{
+    -fx-background-color: #444851;
+    -fx-text-fill: #e6edf5;
+}
+
+.combo-box-popup .list-cell:hover{
+    -fx-background-color: #5a6270;
+}
+
+.combo-box-popup .list-cell:filled:selected{
+    -fx-background-color: #656d7b;
+    -fx-text-fill: white;
+}
+
+.cell-button.winning-cell{
+    -fx-background-color: #19b36b;
+    -fx-border-color: #96f2c7;
+    -fx-border-width: 3px;
+}

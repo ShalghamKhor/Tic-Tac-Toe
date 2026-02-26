@@ -5,6 +5,7 @@ import javafx.animation.Timeline;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -22,12 +23,17 @@ public class SecondaryScene {
     private final Label playerXScoreLabel;
     private final Label playerOScoreLabel;
     private final Label drawsScoreLabel;
+    private final ComboBox<String> flashSpeedSelector;
+    private final ComboBox<String> resetDelaySelector;
     private final Scene scene;
     private int playerXScore;
     private int playerOScore;
     private int drawsScore;
     private boolean roundScoreApplied;
     private boolean roundEndAnimationRunning;
+    private Timeline roundEndTimeline;
+    private long flashStepMillis = 180;
+    private long resetDelayMillis = 900;
 
     public SecondaryScene(boolean playAgainstComputer) {
         this.playAgainstComputer = playAgainstComputer;
@@ -37,16 +43,21 @@ public class SecondaryScene {
         this.playerXScoreLabel = new Label();
         this.playerOScoreLabel = new Label();
         this.drawsScoreLabel = new Label();
+        this.flashSpeedSelector = new ComboBox<>();
+        this.resetDelaySelector = new ComboBox<>();
         this.statusLabel.getStyleClass().add("status-label");
         this.playerXScoreLabel.getStyleClass().add("score-label");
         this.playerOScoreLabel.getStyleClass().add("score-label");
         this.drawsScoreLabel.getStyleClass().add("score-label");
+        this.flashSpeedSelector.getStyleClass().add("settings-combo");
+        this.resetDelaySelector.getStyleClass().add("settings-combo");
 
         HBox scoreboard = buildScoreboard();
+        HBox settings = buildSettingsControls();
         GridPane board = buildBoard();
         HBox controls = buildControls();
 
-        VBox layout = new VBox(20, statusLabel, scoreboard, board, controls);
+        VBox layout = new VBox(20, statusLabel, scoreboard, settings, board, controls);
         layout.setAlignment(Pos.CENTER);
         layout.getStyleClass().add("game-layout");
 
@@ -61,6 +72,43 @@ public class SecondaryScene {
         scoreboard.setAlignment(Pos.CENTER);
         scoreboard.getStyleClass().add("scoreboard");
         return scoreboard;
+    }
+
+    private HBox buildSettingsControls() {
+        Label flashLabel = new Label("Flash Speed");
+        flashLabel.getStyleClass().add("settings-label");
+        flashSpeedSelector.getItems().addAll("Slow", "Normal", "Fast");
+        flashSpeedSelector.setValue("Normal");
+        flashSpeedSelector.setOnAction(e -> {
+            String value = flashSpeedSelector.getValue();
+            if ("Slow".equals(value)) {
+                flashStepMillis = 280;
+            } else if ("Fast".equals(value)) {
+                flashStepMillis = 120;
+            } else {
+                flashStepMillis = 180;
+            }
+        });
+
+        Label delayLabel = new Label("Auto-Reset Delay");
+        delayLabel.getStyleClass().add("settings-label");
+        resetDelaySelector.getItems().addAll("0.9s", "1.5s", "2.5s");
+        resetDelaySelector.setValue("0.9s");
+        resetDelaySelector.setOnAction(e -> {
+            String value = resetDelaySelector.getValue();
+            if ("1.5s".equals(value)) {
+                resetDelayMillis = 1500;
+            } else if ("2.5s".equals(value)) {
+                resetDelayMillis = 2500;
+            } else {
+                resetDelayMillis = 900;
+            }
+        });
+
+        HBox settings = new HBox(12, flashLabel, flashSpeedSelector, delayLabel, resetDelaySelector);
+        settings.setAlignment(Pos.CENTER);
+        settings.getStyleClass().add("settings-panel");
+        return settings;
     }
 
     private GridPane buildBoard() {
@@ -89,6 +137,7 @@ public class SecondaryScene {
     private HBox buildControls() {
         Button resetButton = new Button("Reset");
         resetButton.setOnAction(e -> {
+            stopRoundEndAnimationIfRunning();
             gameLogic.reset();
             roundScoreApplied = false;
             refreshBoard();
@@ -97,7 +146,10 @@ public class SecondaryScene {
         });
 
         Button backButton = new Button("Back to Main");
-        backButton.setOnAction(e -> ViewManager.switchToScene(ViewManager.getInitialScene()));
+        backButton.setOnAction(e -> {
+            stopRoundEndAnimationIfRunning();
+            ViewManager.switchToScene(ViewManager.getInitialScene());
+        });
 
         HBox controls = new HBox(12, resetButton, backButton);
         controls.setAlignment(Pos.CENTER);
@@ -138,6 +190,7 @@ public class SecondaryScene {
     }
 
     private void refreshBoard() {
+        clearWinningHighlight();
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 3; col++) {
                 char value = gameLogic.getCell(row, col);
@@ -199,14 +252,29 @@ public class SecondaryScene {
 
         roundEndAnimationRunning = true;
         setBoardInteractionDisabled(true);
+        applyWinningHighlight();
 
-        Timeline flashTimeline = new Timeline(
+        long step = flashStepMillis;
+        long resetAt = (step * 4) + resetDelayMillis;
+        roundEndTimeline = new Timeline(
                 new KeyFrame(Duration.ZERO, e -> statusLabel.setVisible(true)),
-                new KeyFrame(Duration.millis(180), e -> statusLabel.setVisible(false)),
-                new KeyFrame(Duration.millis(360), e -> statusLabel.setVisible(true)),
-                new KeyFrame(Duration.millis(540), e -> statusLabel.setVisible(false)),
-                new KeyFrame(Duration.millis(720), e -> statusLabel.setVisible(true)),
-                new KeyFrame(Duration.millis(900), e -> {
+                new KeyFrame(Duration.millis(step), e -> {
+                    statusLabel.setVisible(false);
+                    setWinningHighlightVisible(false);
+                }),
+                new KeyFrame(Duration.millis(step * 2), e -> {
+                    statusLabel.setVisible(true);
+                    setWinningHighlightVisible(true);
+                }),
+                new KeyFrame(Duration.millis(step * 3), e -> {
+                    statusLabel.setVisible(false);
+                    setWinningHighlightVisible(false);
+                }),
+                new KeyFrame(Duration.millis(step * 4), e -> {
+                    statusLabel.setVisible(true);
+                    setWinningHighlightVisible(true);
+                }),
+                new KeyFrame(Duration.millis(resetAt), e -> {
                     gameLogic.reset();
                     roundScoreApplied = false;
                     roundEndAnimationRunning = false;
@@ -215,7 +283,7 @@ public class SecondaryScene {
                     updateStatusLabel();
                     maybePlayComputerTurn();
                 }));
-        flashTimeline.play();
+        roundEndTimeline.play();
     }
 
     private void setBoardInteractionDisabled(boolean disabled) {
@@ -225,6 +293,50 @@ public class SecondaryScene {
                         .setDisable(disabled || gameLogic.getCell(row, col) != ' ' || gameLogic.isGameOver());
             }
         }
+    }
+
+    private void applyWinningHighlight() {
+        int[][] winningLine = gameLogic.getWinningLine();
+        if (winningLine == null) {
+            return;
+        }
+        for (int[] cell : winningLine) {
+            boardButtons[cell[0]][cell[1]].getStyleClass().add("winning-cell");
+        }
+    }
+
+    private void setWinningHighlightVisible(boolean visible) {
+        int[][] winningLine = gameLogic.getWinningLine();
+        if (winningLine == null) {
+            return;
+        }
+        for (int[] cell : winningLine) {
+            Button cellButton = boardButtons[cell[0]][cell[1]];
+            if (visible) {
+                if (!cellButton.getStyleClass().contains("winning-cell")) {
+                    cellButton.getStyleClass().add("winning-cell");
+                }
+            } else {
+                cellButton.getStyleClass().remove("winning-cell");
+            }
+        }
+    }
+
+    private void clearWinningHighlight() {
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                boardButtons[row][col].getStyleClass().remove("winning-cell");
+            }
+        }
+    }
+
+    private void stopRoundEndAnimationIfRunning() {
+        if (roundEndTimeline != null) {
+            roundEndTimeline.stop();
+            roundEndTimeline = null;
+        }
+        roundEndAnimationRunning = false;
+        statusLabel.setVisible(true);
     }
 
     public Scene getScene() {
